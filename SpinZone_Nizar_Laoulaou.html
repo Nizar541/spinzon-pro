@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpinZone | Created by Nizar Laoulaou</title>
+<style>
+body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:#f4f7fb;color:#1e293b}
+nav{background:#0f172a;color:#fff;padding:16px 24px;font-weight:bold}
+.hero{background:linear-gradient(135deg,#2563eb,#4f46e5);color:#fff;padding:60px 20px;text-align:center}
+.container{max-width:1200px;margin:auto;padding:20px}
+.card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 4px 16px rgba(0,0,0,.08);margin:20px 0}
+input,button{padding:12px;border-radius:10px;border:1px solid #ccc}
+input{width:100%;max-width:600px}
+button{background:#2563eb;color:white;border:none;cursor:pointer}
+canvas{max-width:100%;display:block;margin:auto}
+.stats{display:flex;gap:20px;flex-wrap:wrap}
+.stat{background:#fff;padding:15px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+footer{background:#0f172a;color:#fff;text-align:center;padding:30px;margin-top:30px}
+</style>
+</head>
+<body>
+<nav>🎡 SpinZone</nav>
+<section class="hero">
+<h1>Smart Decision Platform</h1>
+<p>Created by Nizar Laoulaou</p>
+</section>
+
+<div class="container">
+<div class="card">
+<h2>Ruleta Profesional</h2>
+<input id="choices" value="Pizza,Cine,Fútbol,Minecraft" />
+<button onclick="buildWheel()">Actualizar Ruleta</button>
+<button onclick="spin()">Girar</button>
+<canvas id="wheel" width="500" height="500"></canvas>
+<h3 id="result"></h3>
+</div>
+
+<div class="stats">
+<div class="stat">Giros: <span id="spins">0</span></div>
+</div>
+
+<div class="card">
+<h2>Newsletter</h2>
+<input type="email" placeholder="correo@ejemplo.com">
+<button onclick="alert('Gracias por suscribirte')">Suscribirme</button>
+</div>
+
+<div class="card">
+<h2>Historial</h2>
+<div id="history">Sin resultados todavía.</div>
+</div>
+</div>
+
+<footer>
+<h3>Created by Nizar Laoulaou</h3>
+<p>© 2026 SpinZone</p>
+</footer>
+
+<script>
+const canvas=document.getElementById('wheel');
+const ctx=canvas.getContext('2d');
+let options=[];
+let rotation=0;
+let spinCount=0;
+const colors=['#ef4444','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#f97316'];
+
+function buildWheel(){
+ options=document.getElementById('choices').value.split(',').map(x=>x.trim()).filter(Boolean);
+ drawWheel();
+}
+
+function drawWheel(){
+ const cx=250,cy=250,r=220;
+ ctx.clearRect(0,0,500,500);
+ const angle=(Math.PI*2)/options.length;
+
+ options.forEach((opt,i)=>{
+   const start=i*angle;
+   const end=start+angle;
+   ctx.beginPath();
+   ctx.moveTo(cx,cy);
+   ctx.arc(cx,cy,r,start,end);
+   ctx.fillStyle=colors[i%colors.length];
+   ctx.fill();
+
+   ctx.save();
+   ctx.translate(cx,cy);
+   ctx.rotate(start+angle/2);
+   ctx.fillStyle='white';
+   ctx.font='bold 18px Segoe UI';
+   ctx.fillText(opt,r*0.55,5);
+   ctx.restore();
+ });
+
+ ctx.beginPath();
+ ctx.arc(cx,cy,40,0,Math.PI*2);
+ ctx.fillStyle='white';
+ ctx.fill();
+}
+
+function spin(){
+ if(options.length<2){alert('Pon al menos 2 opciones');return;}
+ const winner=Math.floor(Math.random()*options.length);
+ const slice=360/options.length;
+ const target=360-(winner*slice)-slice/2;
+ rotation += 3600 + target;
+ canvas.style.transition='transform 5s ease-out';
+ canvas.style.transform='rotate('+rotation+'deg)';
+
+ setTimeout(()=>{
+   const text=options[winner];
+   document.getElementById('result').textContent='🎉 Resultado: '+text;
+   spinCount++;
+   document.getElementById('spins').textContent=spinCount;
+
+   const h=document.getElementById('history');
+   if(h.textContent==='Sin resultados todavía.') h.innerHTML='';
+   h.innerHTML='<div>• '+text+'</div>'+h.innerHTML;
+ },5000);
+}
+
+buildWheel();
+</script>
+</body>
+</html>
